@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+
+*finetune_config.yaml*
+*train_from_scratch_config.yaml*
 # Distribution / packaging
 .Python
 build/
