@@ -8,6 +8,7 @@ import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchvision import transforms
 import sys
 from datetime import datetime
@@ -64,7 +65,14 @@ def main(cfg: DictConfig):
     # Дообучение модели
     print("Начинаем дообучение...")
 
-    
+    scheduler = ReduceLROnPlateau(
+        optimizer, 
+        mode='min', 
+        factor=0.5, 
+        patience=10,
+        verbose=True,
+        min_lr=1e-6
+    )
     history = train_som_vae_pretrained(
         model=model,
         train_dataset=train_dataset,
@@ -77,7 +85,8 @@ def main(cfg: DictConfig):
         beta=cfg.training.beta,
         gamma=cfg.training.gamma,
         info_interval=cfg.training.info_interval,
-        img_save_name=os.path.join(cfg.paths.img_path, cfg.model.name)
+        img_save_name=os.path.join(cfg.paths.img_path, cfg.model.name),
+        scheduler=scheduler
     )
     
     # Сохранение дообученной модели

@@ -191,17 +191,29 @@ def train_som_vae(model, train_dataset, val_dataset, optimizer, device,
 
 
 def train_som_vae_pretrained(model, train_dataset, val_dataset, optimizer, device, 
-                  epochs=10, batch_size=128, info_interval=5, alpha=1.0, beta=1.0, gamma=1.0, img_save_name='pic.png'):
+                  epochs=10, batch_size=128, info_interval=5, alpha=1.0, beta=1.0, gamma=1.0, 
+                  img_save_name='pic.png', scheduler=None):
     """
-    Обучение SOM-VAE модели
+    Обучение SOM-VAE модели с поддержкой learning rate scheduler'а
+    
+    Параметры:
+        scheduler: опционально - экземпляр torch.optim.lr_scheduler.*
+                   Поддерживаются все типы, включая ReduceLROnPlateau (авто-детект)
     """
+    from torch.optim.lr_scheduler import ReduceLROnPlateau
+    import numpy as np
+    from tqdm import tqdm
+    from torch.utils.data import DataLoader
+    from sklearn.metrics import normalized_mutual_info_score
+
     train_loader = DataLoader(train_dataset, batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size)
     
-    # История обучения для визуализации
+    # История обучения + трекинг LR
     history = {
         'train_loss': [], 'train_acc': [],
-        'val_loss': [], 'val_acc': [], 'nmi': []
+        'val_loss': [], 'val_acc': [], 'nmi': [],
+        'lr': []  # <-- новый ключ для отслеживания LR
     }
     
     for epoch in range(1, epochs + 1):
@@ -210,7 +222,9 @@ def train_som_vae_pretrained(model, train_dataset, val_dataset, optimizer, devic
         train_correct = 0
         train_total = 0
         
-        pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{epochs} [Train]")
+        # Получаем текущий LR для отображения
+        current_lr = optimizer.param_groups[0]['lr']
+        pbar = tqdm(train_loader, desc=f"Epoch {epoch}/{epochs} [Train] LR={current_lr:.2e}")
         
         for data, labels, _ in pbar:
             data, labels = data.to(device), labels.to(device)
@@ -281,6 +295,7 @@ def train_som_vae_pretrained(model, train_dataset, val_dataset, optimizer, devic
         flat_indices = np.concatenate(all_indices).ravel()
         flat_labels = np.concatenate(all_labels).ravel()
         current_nmi = normalized_mutual_info_score(flat_labels, flat_indices)
+        val_loss_avg = val_total_loss / len(val_loader)
 
         train_acc = 100 * train_correct / train_total
         val_acc = 100 * val_correct / val_total
@@ -288,12 +303,24 @@ def train_som_vae_pretrained(model, train_dataset, val_dataset, optimizer, devic
         # Сохранение истории
         history['train_loss'].append(train_losses['total'] / len(train_loader))
         history['train_acc'].append(train_acc)
-        history['val_loss'].append(val_total_loss / len(val_loader))
+        history['val_loss'].append(val_loss_avg)
         history['val_acc'].append(val_acc)
         history['nmi'].append(current_nmi)
+        history['lr'].append(current_lr)  # <-- сохраняем текущий LR до шага скедулера
         
+        # Шаг скедулера после валидации
+        if scheduler is not None:
+            if isinstance(scheduler, ReduceLROnPlateau):
+                scheduler.step(val_loss_avg)  # для плато — передаём метрику
+            else:
+                scheduler.step()  # для остальных — просто шаг
+        
+        # Вывод саммари с LR
+        new_lr = optimizer.param_groups[0]['lr']
         tqdm.write(f"Summary Epoch {epoch}:")
-        tqdm.write(f"Train Loss: {history['train_loss'][-1]:.4f}| Val Loss: {history['val_loss'][-1]:.4f} | Train Acc: {train_acc:.2f}% | Val Acc: {val_acc:.2f}% | NMI: {current_nmi:.4f}")
+        tqdm.write(f"LR: {current_lr:.2e} → {new_lr:.2e} | "
+                   f"Train Loss: {history['train_loss'][-1]:.4f} | Val Loss: {val_loss_avg:.4f} | "
+                   f"Train Acc: {train_acc:.2f}% | Val Acc: {val_acc:.2f}% | NMI: {current_nmi:.4f}")
         
         if epoch % info_interval == 0:
             plot_som_reconstruction_map(model, save_path=f"{img_save_name}_ep{epoch}.png")
