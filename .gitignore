@@ -6,6 +6,9 @@
 # C extensions
 *.so
 
+
+*finetune_config.yaml*
+*train_from_scratch_config.yaml*
 # Distribution / packaging
 .Python
 build/
@@ -182,11 +185,7 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
+.vscode/
 
 # Ruff stuff:
 .ruff_cache/
@@ -195,9 +194,6 @@ cython_debug/
 .pypirc
 
 # Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
 
@@ -205,3 +201,46 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ============================================
+# TopoGen Earth Project Specific
+# ============================================
+
+# Checkpoints and model weights
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Training outputs and logs
+outputs/
+logs/
+*.log
+
+# Hydra configs (generated)
+*finetune_config.yaml
+*train_from_scratch_config.yaml
+configs/conf/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+.notebooks/
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
+
+# Environment
+.env
+.env.local
+*.env
