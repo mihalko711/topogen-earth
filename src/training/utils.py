@@ -29,23 +29,27 @@ def visualize_and_save(
         (clean_images[0].detach().cpu().permute(1, 2, 0) * 0.5 + 0.5).clamp(0, 1)
     )
 
-    ncols = (len(history) + 2) // 4
-    fig, axes = plt.subplots(5, ncols, figsize=(ncols * 2.5, 5 * 3))
+    total = len(history) + 2
+    ncols = min(total, 5)
+    nrows = (total + ncols - 1) // ncols
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 2.5, nrows * 3))
+    axes = axes.flatten()
 
-    axes[0][0].imshow(mask_disp)
-    axes[0][0].set_title("Input Mask")
-    axes[0][0].axis("off")
-    axes[0][1].imshow(target_disp)
-    axes[0][1].set_title("Target Image")
-    axes[0][1].axis("off")
+    axes[0].imshow(mask_disp)
+    axes[0].set_title("Input Mask")
+    axes[0].axis("off")
+    axes[1].imshow(target_disp)
+    axes[1].set_title("Target Image")
+    axes[1].axis("off")
 
     for idx, img in enumerate(history):
         display_img = (img.squeeze().permute(1, 2, 0) * 0.5 + 0.5).clamp(0, 1)
-        r = (idx + 2) // ncols
-        c = (idx + 2) % ncols
-        axes[r][c].imshow(display_img)
-        axes[r][c].set_title(f"t={idx / (len(history) - 1):.1f}")
-        axes[r][c].axis("off")
+        axes[idx + 2].imshow(display_img)
+        axes[idx + 2].set_title(f"t={idx / (len(history) - 1):.1f}")
+        axes[idx + 2].axis("off")
+
+    for i in range(total, len(axes)):
+        axes[i].axis("off")
 
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, f"epoch_{epoch}_step_{step}.png"))

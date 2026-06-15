@@ -3,7 +3,7 @@ import os
 import torch
 from torch.amp import GradScaler
 from torch.utils.data import DataLoader
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from src.models.config import TrainingConfig
 from src.models.model import create_unet, flow_matching_loss
