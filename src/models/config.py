@@ -7,14 +7,9 @@ class UNetConfig:
     in_channels: int = 6
     out_channels: int = 3
     layers_per_block: int = 3
-    block_out_channels: tuple[int, ...] = (32, 64, 128)
-    down_block_types: tuple[str, ...] = (
-        "DownBlock2D",
-        "AttnDownBlock2D",
-        "AttnDownBlock2D",
-    )
+    block_out_channels: tuple[int, ...] = (32, 64)
+    down_block_types: tuple[str, ...] = ("DownBlock2D", "AttnDownBlock2D")
     up_block_types: tuple[str, ...] = (
-        "AttnUpBlock2D",
         "AttnUpBlock2D",
         "UpBlock2D",
     )
