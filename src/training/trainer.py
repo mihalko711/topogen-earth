@@ -1,7 +1,7 @@
 import os
 
 import torch
-from torch.cuda.amp import GradScaler
+from torch.amp import GradScaler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -23,7 +23,7 @@ class Trainer:
         self.cfg = cfg
         self.device = device
         self.optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.learning_rate)
-        self.scaler = GradScaler("cuda")
+        self.scaler = GradScaler(self.device)
         os.makedirs(cfg.save_dir, exist_ok=True)
 
     def train_one_epoch(self, epoch: int):
