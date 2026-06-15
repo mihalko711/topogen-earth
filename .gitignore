@@ -234,3 +234,6 @@ Thumbs.db
 
 # Local progress tracking (not committed)
 PROGRESS.md
+
+# Kaggle scratch notebook (experimental)
+notebooks/masked-map-generation-based-on-diffusion.ipynb
