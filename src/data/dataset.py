@@ -108,7 +108,7 @@ class OpenEarthMapDataset(Dataset):
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         img_path = self.image_paths[idx]
-        mask_path = Path(str(img_path).replace("/images/", "/labels/"))
+        mask_path = Path(str(img_path).replace("/images/", "/label/"))
 
         image = Image.open(img_path).convert("RGB")
 
