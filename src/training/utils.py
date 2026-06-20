@@ -15,7 +15,7 @@ def visualize_and_save(
     save_dir,
     device,
     num_steps=20,
-    crop_size=128,
+    crop_size=256,
 ):
     model.eval()
     with torch.no_grad():

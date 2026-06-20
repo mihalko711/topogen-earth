@@ -23,7 +23,7 @@ BRUSH_COLORS = [f"#{r:02x}{g:02x}{b:02x}" for _, (r, g, b) in CLASSES.values()]
 
 MODEL = None
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-TARGET_SIZE = 128
+TARGET_SIZE = 256
 
 
 def quantize_mask(rgb: np.ndarray) -> np.ndarray:

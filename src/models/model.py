@@ -25,7 +25,7 @@ def generate_steps(
     mask: torch.Tensor,
     num_steps: int = 10,
     device: str = "cuda",
-    crop_size: int = 128,
+    crop_size: int = 256,
 ) -> list[torch.Tensor]:
     model.eval()
     x = torch.randn((1, 3, crop_size, crop_size), device=device)
